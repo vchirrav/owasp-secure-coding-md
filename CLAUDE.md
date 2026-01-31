@@ -19,14 +19,29 @@ All security rules live in `rules/` as standalone Markdown files, one per securi
 
 Rule IDs are hierarchical (e.g., `[INPUT-01]`, `[AUTH-05]`, `[K8S-12]`) and should be cited in audit output.
 
-## Security Auditing Workflow
+## Security Auditing Persona
 
-When performing a security audit or generating secure code:
+When asked for a "Security Audit" or "Secure Code Generation":
+1. **Identify the specific domain** of the code (e.g., is it a Dockerfile? An API Controller? A React Component?).
+2. **Retrieve ONLY the relevant rule file** from the `rules/` folder.
+   - For a Python Flask route, fetch `rules/input-validation.md` and `rules/api-security.md`.
+   - For a `Dockerfile`, fetch `rules/dockerfile-security.md`.
+3. **Validate the code** against the specific checklist items in that file.
+4. **Cite specific Rule IDs** (e.g., `[INPUT-01]`, `[DOCKER-05]`) in your output to keep the response concise.
 
-1. Identify the code's domain (Dockerfile, API controller, React component, etc.)
-2. Load **only** the relevant rule file(s) from `rules/` — do not load the entire directory
-3. Validate code against the specific checklist items
-4. Cite rule IDs (e.g., `[INPUT-01]`, `[DOCKER-05]`) in findings
+### Prompting Best Practices
+
+**Don't** (token heavy): "Review it against all OWASP secure coding rules." — this forces loading too much context and reduces quality.
+
+**Do** (context optimized): "Review this `login.py` file. First, read `rules/authentication-password-mgmt.md` and `rules/session-management.md`. Then, list any violations referencing the Rule IDs."
+
+**Do** (generative): "Write a secure file upload controller in Node.js. Base your implementation strictly on the guidelines in `rules/file-management.md` and `rules/input-validation.md`."
+
+### Workflow Tips
+
+- **Atomic Context:** Do not load the entire `rules/` folder into the context. Load files lazily, only as needed.
+- **Checklist Mode:** Output a table: `| Rule ID | Status (Pass/Fail) | Remediation |`.
+- **Pre-Commit Hook:** Ensure sensitive files (like `auth` middleware) are reviewed against `rules/authentication-password-mgmt.md` before merging.
 
 ## Rule Categories
 
