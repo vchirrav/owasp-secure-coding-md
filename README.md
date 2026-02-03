@@ -67,4 +67,17 @@ When I ask for a "Security Audit" or "Secure Code Generation":
 * **Pre-Commit Hook:** You can script a simple check to ensure specific sensitive files (like `auth` middleware) are always reviewed against `rules/authentication-password-mgmt.md` before merging.
 
 ##  License
-This repository contains synthesized information from the [OWASP Secure Coding Practices Quick Reference Guide v2.1](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/assets/docs/OWASP_SCP_Quick_Reference_Guide_v21.pdf), Docker Docs, Cheatsheets, and other industry standards.
+This repository contains synthesized information from the following sources and standards:
+* OWASP Secure Coding Practices Quick Reference Guide v2.1
+* OWASP API Security Top 10 (2023)
+* OWASP Secrets Management Cheat Sheet
+* OWASP Client-Side Security Cheat Sheet
+* OWASP SCVS
+* Docker Docs (Best Practices for Dockerfiles)
+* CIS Benchmarks
+* NSA/CISA Kubernetes Hardening Guidance
+* HashiCorp Security Best Practices
+* SLSA Framework
+* NIST SSDF
+* CNCF Best Practices
+* W3C and MDN Web Docs
