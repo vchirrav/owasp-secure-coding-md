@@ -3,57 +3,356 @@
 > Source: OWASP Secure Coding Practices Quick Reference Guide v2.1
 
 ## Principles
-Authentication is the verification of the identity of a user or entity. Strong password management ensures that credentials are handled, stored, and managed securely throughout their lifecycle.
+Authentication verifies identity; password management ensures credentials are stored, transmitted, and rotated securely. These rules focus on strong authentication flows, secure credential handling, and resilience to brute force and account takeover.
 
 ## Checklist Rules
 
-### General Authentication
-* [cite_start]**[AUTH-01]** Require authentication for all pages and resources, except those specifically intended to be public[cite: 122].
-* [cite_start]**[AUTH-02]** All authentication controls must be enforced on a trusted system (e.g., the server)[cite: 123].
-* [cite_start]**[AUTH-03]** Establish and utilize standard, tested authentication services whenever possible[cite: 124].
-* [cite_start]**[AUTH-04]** Use a centralized implementation for all authentication controls, including libraries that call external services[cite: 125].
-* [cite_start]**[AUTH-05]** Segregate authentication logic from the resource being requested and use redirection to/from the centralized control[cite: 126].
-* [cite_start]**[AUTH-06]** All authentication controls should fail securely[cite: 127].
-* [cite_start]**[AUTH-07]** All administrative and account management functions must be at least as secure as the primary authentication mechanism[cite: 128].
+### [AUTH-01] Require Authentication by Default
+**Identity:** AUTH-01
+**Rule:** Require authentication for all pages and resources except explicitly public ones.
+**Rationale:** Unauthenticated exposure is a common source of data leakage and unauthorized actions.
+**Implementation:** Use a default-deny access policy; explicitly mark public endpoints.
+**Verification:** Enumerate endpoints and confirm protected routes require authentication.
+**Examples:**
+1. Do: Protect all routes except `/health` and `/login`.
+2. Don't: Assume unlisted routes are protected.
 
-### Password Storage & Handling
-* [cite_start]**[AUTH-08]** If managing a credential store, ensure only cryptographically strong one-way salted hashes are stored[cite: 129].
-    * [cite_start]The write access to the password table/file should be restricted to the application only[cite: 129].
-    * [cite_start]Do not use MD5[cite: 130].
-* [cite_start]**[AUTH-09]** Password hashing must be implemented on a trusted system (e.g., the server)[cite: 131].
-* [cite_start]**[AUTH-10]** Validate authentication data only on completion of all data input[cite: 132].
-* [cite_start]**[AUTH-11]** Authentication failure responses should not indicate which part of the data was incorrect (e.g., use "Invalid username and/or password")[cite: 133, 134].
-    * [cite_start]Error responses must be identical in both display and source code[cite: 135].
-* [cite_start]**[AUTH-12]** Use HTTP POST requests to transmit authentication credentials[cite: 139].
-* [cite_start]**[AUTH-13]** Only send non-temporary passwords over an encrypted connection (e.g., HTTPS) or as encrypted data[cite: 140].
-* [cite_start]**[AUTH-14]** Password entry should be obscured on the user's screen[cite: 146].
-* [cite_start]**[AUTH-15]** Disable "remember me" functionality for password fields[cite: 162].
+### [AUTH-02] Enforce Authentication on Trusted Systems
+**Identity:** AUTH-02
+**Rule:** Enforce authentication controls on a trusted system (server-side).
+**Rationale:** Client-side checks can be bypassed or altered.
+**Implementation:** Validate credentials and sessions on the server; never rely on client checks.
+**Verification:** Confirm server denies access when client-side logic is bypassed.
+**Examples:**
+1. Do: Authenticate requests on the server for every call.
+2. Don't: Use only client-side checks before accessing data.
 
-### Password Policy
-* [cite_start]**[AUTH-16]** Enforce password complexity requirements (e.g., mix of alphanumeric and special characters)[cite: 141, 143].
-* **[AUTH-17]** Enforce password length requirements; [cite_start]8 characters is common, but 16 or multi-word passphrases are better[cite: 144, 145].
-* [cite_start]**[AUTH-18]** Enforce account disabling after an established number of invalid login attempts (e.g., five)[cite: 147].
-    * [cite_start]Lockout duration must be sufficient to discourage brute force but prevent denial-of-service[cite: 148].
-* [cite_start]**[AUTH-19]** Enforce password changes based on policy; critical systems may require more frequent changes[cite: 160].
-* [cite_start]**[AUTH-20]** Prevent password re-use[cite: 158].
-* [cite_start]**[AUTH-21]** Passwords should be at least one day old before they can be changed to prevent cycling attacks[cite: 159].
+### [AUTH-03] Use Standard, Tested Authentication Services
+**Identity:** AUTH-03
+**Rule:** Use standard, vetted authentication services or frameworks.
+**Rationale:** Custom authentication logic is prone to subtle errors.
+**Implementation:** Use platform auth libraries, IdPs, or standard protocols like OIDC.
+**Verification:** Confirm custom code does not reimplement auth protocols.
+**Examples:**
+1. Do: Use a well-maintained auth library.
+2. Don't: Build a custom password storage scheme.
 
-### Password Resets & Account Management
-* [cite_start]**[AUTH-22]** Password reset and changing operations require the same level of controls as account creation/authentication[cite: 149].
-* [cite_start]**[AUTH-23]** Password reset questions should support sufficiently random answers (avoid common answers like "favorite book")[cite: 150].
-* [cite_start]**[AUTH-24]** If using email resets, only send to a pre-registered address with a temporary link/password[cite: 151].
-* [cite_start]**[AUTH-25]** Temporary passwords and links should have a short expiration time[cite: 152].
-* [cite_start]**[AUTH-26]** Enforce the changing of temporary passwords on the next use[cite: 153].
-* [cite_start]**[AUTH-27]** Notify users when a password reset occurs[cite: 157].
+### [AUTH-04] Centralize Authentication Controls
+**Identity:** AUTH-04
+**Rule:** Use a centralized implementation for all authentication checks.
+**Rationale:** Centralization reduces inconsistencies and bypasses.
+**Implementation:** Use middleware or gateway-based authentication for all routes.
+**Verification:** Ensure every entry point uses the centralized auth logic.
+**Examples:**
+1. Do: Enforce auth via a shared middleware.
+2. Don't: Implement per-controller ad hoc auth.
 
-### External & Third-Party Auth
-* [cite_start]**[AUTH-28]** Utilize authentication for connections to external systems that involve sensitive information[cite: 136].
-* [cite_start]**[AUTH-29]** Encrypt and store external credentials in a protected location on a trusted system; do NOT store in source code[cite: 137, 138].
-* [cite_start]**[AUTH-30]** If using third-party code for authentication, inspect it carefully for malicious code[cite: 168].
+### [AUTH-05] Segregate Authentication Logic
+**Identity:** AUTH-05
+**Rule:** Segregate authentication logic from the requested resource and use redirection or middleware.
+**Rationale:** Separation reduces bypass opportunities and improves maintainability.
+**Implementation:** Use dedicated auth endpoints and middleware.
+**Verification:** Confirm that resources are not directly accessible without the auth flow.
+**Examples:**
+1. Do: Redirect unauthenticated users to a login route.
+2. Don't: Combine authentication and data access in a single handler.
 
-### Monitoring & Advanced Controls
-* [cite_start]**[AUTH-31]** Report the last use of a user account (successful or unsuccessful) at the next successful login[cite: 163].
-* [cite_start]**[AUTH-32]** Implement monitoring to identify attacks against multiple accounts utilizing the same password[cite: 164].
-* [cite_start]**[AUTH-33]** Change all vendor-supplied default passwords and user IDs or disable the associated accounts[cite: 166].
-* [cite_start]**[AUTH-34]** Re-authenticate users prior to performing critical operations[cite: 166].
-* [cite_start]**[AUTH-35]** Use Multi-Factor Authentication (MFA) for highly sensitive or high-value transactional accounts[cite: 167].
+### [AUTH-06] Fail Securely
+**Identity:** AUTH-06
+**Rule:** Authentication controls must fail closed.
+**Rationale:** Errors should not permit access.
+**Implementation:** Deny on errors, timeouts, or missing configuration.
+**Verification:** Simulate auth service failures and confirm access is denied.
+**Examples:**
+1. Do: Deny if auth service is unavailable.
+2. Don't: Permit access during auth outages.
+
+### [AUTH-07] Secure Admin and Account Management
+**Identity:** AUTH-07
+**Rule:** Administrative and account management functions must be at least as secure as primary authentication.
+**Rationale:** Weak admin flows enable privilege escalation.
+**Implementation:** Require strong auth, MFA, and step-up verification for admin actions.
+**Verification:** Attempt admin actions without proper auth and verify denial.
+**Examples:**
+1. Do: Require MFA for admin actions.
+2. Don't: Expose admin panels with weaker auth.
+
+### [AUTH-08] Store Passwords with Strong One-Way Hashes
+**Identity:** AUTH-08
+**Rule:** Store only cryptographically strong, salted, one-way password hashes.
+**Rationale:** Weak or reversible storage enables credential theft.
+**Implementation:** Use Argon2id, bcrypt, or scrypt with unique salts; restrict write access to credential store.
+**Verification:** Verify storage uses strong hashes and salts; confirm no MD5/SHA-1.
+**Examples:**
+1. Do: Store `argon2id(salt, password)`.
+2. Don't: Store plaintext or MD5 hashes.
+
+### [AUTH-09] Hash Passwords on Trusted Systems
+**Identity:** AUTH-09
+**Rule:** Perform password hashing only on trusted systems (server-side).
+**Rationale:** Client-side hashing can be bypassed and reused.
+**Implementation:** Always hash passwords on the server with a secret salt.
+**Verification:** Ensure server validates and hashes credentials independent of client.
+**Examples:**
+1. Do: Hash on the server before storing.
+2. Don't: Accept pre-hashed passwords from clients.
+
+### [AUTH-10] Validate Credentials After Full Input
+**Identity:** AUTH-10
+**Rule:** Validate authentication data only after all input is received.
+**Rationale:** Partial validation can leak information or allow bypass.
+**Implementation:** Collect all required fields before validation.
+**Verification:** Confirm authentication is processed only after full input.
+**Examples:**
+1. Do: Validate after full username/password input.
+2. Don't: Validate partial inputs incrementally.
+
+### [AUTH-11] Use Generic Authentication Error Messages
+**Identity:** AUTH-11
+**Rule:** Authentication failure responses must not indicate which part of the data was incorrect.
+**Rationale:** Specific errors enable username enumeration.
+**Implementation:** Use a generic message like "Invalid username or password."
+**Verification:** Confirm errors are identical for wrong username vs wrong password.
+**Examples:**
+1. Do: Return a single generic failure message.
+2. Don't: Reveal "user not found" or "wrong password."
+
+### [AUTH-12] Send Credentials via POST
+**Identity:** AUTH-12
+**Rule:** Transmit authentication credentials only in the body of HTTP POST (or equivalent) requests.
+**Rationale:** Query parameters can be logged or cached.
+**Implementation:** Use POST over TLS and disable credential logging.
+**Verification:** Confirm credentials never appear in URLs or logs.
+**Examples:**
+1. Do: Send credentials in POST body over TLS.
+2. Don't: Put credentials in query strings.
+
+### [AUTH-13] Protect Password Transmission
+**Identity:** AUTH-13
+**Rule:** Send non-temporary passwords only over encrypted connections.
+**Rationale:** Unencrypted transmission enables interception.
+**Implementation:** Enforce TLS for authentication endpoints.
+**Verification:** Ensure HTTP is redirected to HTTPS and HSTS is enabled where appropriate.
+**Examples:**
+1. Do: Enforce HTTPS for login.
+2. Don't: Allow HTTP for credential submission.
+
+### [AUTH-14] Obscure Password Entry
+**Identity:** AUTH-14
+**Rule:** Obscure password entry on user screens.
+**Rationale:** Prevents shoulder-surfing and casual observation.
+**Implementation:** Use password input fields that hide characters by default.
+**Verification:** Confirm password fields mask input.
+**Examples:**
+1. Do: Use password input types.
+2. Don't: Display passwords in plain text by default.
+
+### [AUTH-15] Disable "Remember Me" for Password Fields
+**Identity:** AUTH-15
+**Rule:** Disable "remember me" or auto-fill for password fields when inappropriate.
+**Rationale:** Stored passwords on shared devices can be compromised.
+**Implementation:** Set `autocomplete="off"` or appropriate policy for sensitive contexts.
+**Verification:** Check browser autofill behavior for login forms.
+**Examples:**
+1. Do: Disable password autofill on shared kiosks.
+2. Don't: Enable remember-me on high-risk apps.
+
+### [AUTH-16] Enforce Password Complexity
+**Identity:** AUTH-16
+**Rule:** Enforce password complexity requirements suitable for the application's risk level.
+**Rationale:** Complexity reduces the risk of easy guessing.
+**Implementation:** Require a mix of character classes or use passphrase policies with strength checks.
+**Verification:** Attempt weak passwords and ensure rejection.
+**Examples:**
+1. Do: Enforce complexity or strong passphrase rules.
+2. Don't: Accept trivial passwords like "password123".
+
+### [AUTH-17] Enforce Password Length Requirements
+**Identity:** AUTH-17
+**Rule:** Enforce minimum password length requirements; prefer longer passphrases.
+**Rationale:** Length provides more security than complexity alone.
+**Implementation:** Set minimum length (e.g., 12+); allow long passphrases.
+**Verification:** Confirm short passwords are rejected.
+**Examples:**
+1. Do: Require 12+ characters or passphrases.
+2. Don't: Allow 6-character passwords.
+
+### [AUTH-18] Lock Out After Repeated Failures
+**Identity:** AUTH-18
+**Rule:** Disable or throttle accounts after a defined number of failed login attempts.
+**Rationale:** Limits brute force attacks.
+**Implementation:** Use account lockout or exponential backoff with alerting.
+**Verification:** Attempt repeated failures and confirm lockout or throttling.
+**Examples:**
+1. Do: Lock or throttle after 5 failed attempts.
+2. Don't: Allow unlimited failed logins.
+
+### [AUTH-19] Enforce Password Changes by Policy
+**Identity:** AUTH-19
+**Rule:** Enforce password changes based on policy for high-risk systems.
+**Rationale:** Periodic changes can reduce exposure from leaked credentials.
+**Implementation:** Define rotation cadence for sensitive accounts; avoid forced rotation for low-risk accounts without evidence.
+**Verification:** Confirm policy is enforced for targeted roles.
+**Examples:**
+1. Do: Require periodic changes for privileged accounts.
+2. Don't: Apply disruptive rotation without risk justification.
+
+### [AUTH-20] Prevent Password Reuse
+**Identity:** AUTH-20
+**Rule:** Prevent users from reusing recent passwords.
+**Rationale:** Reuse undermines password change effectiveness.
+**Implementation:** Maintain a password history; compare against last N hashes.
+**Verification:** Attempt to reuse an old password and confirm rejection.
+**Examples:**
+1. Do: Block reuse of the last 5 passwords.
+2. Don't: Allow immediate reuse after change.
+
+### [AUTH-21] Prevent Rapid Password Cycling
+**Identity:** AUTH-21
+**Rule:** Require a minimum password age before another change.
+**Rationale:** Prevents cycling through old passwords to bypass reuse limits.
+**Implementation:** Enforce minimum time (e.g., 24 hours) before change.
+**Verification:** Attempt immediate changes and ensure rejection.
+**Examples:**
+1. Do: Enforce a minimum change interval.
+2. Don't: Allow instant multiple changes.
+
+### [AUTH-22] Secure Password Reset and Change Flows
+**Identity:** AUTH-22
+**Rule:** Apply the same level of security to password reset/change as to authentication.
+**Rationale:** Weak reset flows bypass strong login controls.
+**Implementation:** Require identity verification and secure tokens for resets.
+**Verification:** Attempt reset without adequate verification and ensure denial.
+**Examples:**
+1. Do: Use verified email or MFA for reset.
+2. Don't: Reset solely on a known username.
+
+### [AUTH-23] Use Strong Reset Questions (If Used)
+**Identity:** AUTH-23
+**Rule:** If using security questions, require answers that are not easily guessable.
+**Rationale:** Common answers are easy to research or guess.
+**Implementation:** Prefer not using security questions; if used, allow custom questions and enforce entropy.
+**Verification:** Evaluate reset flows for guessable answers.
+**Examples:**
+1. Do: Use high-entropy recovery methods over security questions.
+2. Don't: Use "mother's maiden name" as a primary factor.
+
+### [AUTH-24] Use Pre-Registered Email for Resets
+**Identity:** AUTH-24
+**Rule:** Send reset links only to pre-registered email addresses.
+**Rationale:** Prevents reset to attacker-controlled addresses.
+**Implementation:** Use verified email addresses and avoid showing whether an email exists.
+**Verification:** Attempt reset with unverified email and ensure denial.
+**Examples:**
+1. Do: Send reset links only to verified emails.
+2. Don't: Allow reset to arbitrary email input.
+
+### [AUTH-25] Set Short Expiration on Reset Tokens
+**Identity:** AUTH-25
+**Rule:** Temporary reset links or passwords must expire quickly.
+**Rationale:** Short windows limit exposure if links are intercepted.
+**Implementation:** Set expiration times (e.g., 15-60 minutes) and single-use tokens.
+**Verification:** Use expired tokens and ensure rejection.
+**Examples:**
+1. Do: Use one-time reset links with short TTL.
+2. Don't: Use long-lived reset links.
+
+### [AUTH-26] Force Change of Temporary Passwords
+**Identity:** AUTH-26
+**Rule:** Require changing temporary passwords at next login.
+**Rationale:** Temporary credentials should not remain active.
+**Implementation:** Force password update on first successful login with a temp password.
+**Verification:** Confirm accounts cannot continue without resetting.
+**Examples:**
+1. Do: Force update after temporary login.
+2. Don't: Allow continued use of temporary passwords.
+
+### [AUTH-27] Notify Users of Password Resets
+**Identity:** AUTH-27
+**Rule:** Notify users when a password reset occurs.
+**Rationale:** Enables users to detect unauthorized resets.
+**Implementation:** Send email or in-app notifications on reset events.
+**Verification:** Confirm notifications are sent on reset.
+**Examples:**
+1. Do: Notify on reset attempts and completion.
+2. Don't: Reset silently without notification.
+
+### [AUTH-28] Authenticate External Connections
+**Identity:** AUTH-28
+**Rule:** Use authentication for connections to external systems that process sensitive information.
+**Rationale:** Unauthenticated external access exposes data.
+**Implementation:** Use mutual TLS, API keys, or OAuth for external system access.
+**Verification:** Confirm external system access requires valid credentials.
+**Examples:**
+1. Do: Require mTLS for service-to-service access.
+2. Don't: Allow anonymous access to sensitive services.
+
+### [AUTH-29] Protect External Credentials
+**Identity:** AUTH-29
+**Rule:** Encrypt and store external credentials in a protected location; never store them in source code.
+**Rationale:** Hardcoded or exposed credentials are easily compromised.
+**Implementation:** Use secret managers or vaults; restrict access and audit use.
+**Verification:** Scan repos and configs for embedded secrets.
+**Examples:**
+1. Do: Store credentials in a secret manager.
+2. Don't: Commit API keys to source control.
+
+### [AUTH-30] Review Third-Party Authentication Code
+**Identity:** AUTH-30
+**Rule:** Review and validate third-party authentication code or libraries.
+**Rationale:** Compromised or vulnerable auth dependencies are high-risk.
+**Implementation:** Vet dependencies, pin versions, and monitor for CVEs.
+**Verification:** Run SCA scans and code review for auth integrations.
+**Examples:**
+1. Do: Use trusted, maintained auth libraries.
+2. Don't: Integrate unreviewed auth plugins.
+
+### [AUTH-31] Report Last Account Use
+**Identity:** AUTH-31
+**Rule:** Report the last successful or unsuccessful account activity at next login.
+**Rationale:** Users can detect suspicious access.
+**Implementation:** Store last login metadata and display it securely.
+**Verification:** Confirm the UI shows last login time/IP.
+**Examples:**
+1. Do: Display last login timestamp and IP.
+2. Don't: Hide account activity from users.
+
+### [AUTH-32] Monitor Password Reuse Attacks
+**Identity:** AUTH-32
+**Rule:** Monitor for attacks against multiple accounts using the same password.
+**Rationale:** Credential stuffing uses known password lists across accounts.
+**Implementation:** Detect repeated password failures across accounts and trigger alerts.
+**Verification:** Simulate credential stuffing and confirm detection.
+**Examples:**
+1. Do: Trigger alerts on repeated password reuse patterns.
+2. Don't: Ignore cross-account attack patterns.
+
+### [AUTH-33] Change Vendor Defaults
+**Identity:** AUTH-33
+**Rule:** Change or disable all vendor-supplied default credentials.
+**Rationale:** Default credentials are widely known and easily exploited.
+**Implementation:** Enforce default credential changes during setup.
+**Verification:** Ensure default accounts cannot authenticate.
+**Examples:**
+1. Do: Require new credentials at first use.
+2. Don't: Leave default admin passwords in place.
+
+### [AUTH-34] Re-Authenticate for Critical Operations
+**Identity:** AUTH-34
+**Rule:** Re-authenticate users before sensitive actions.
+**Rationale:** Prevents session hijacking from enabling high-risk changes.
+**Implementation:** Require password re-entry or MFA before critical changes.
+**Verification:** Confirm critical operations trigger re-authentication.
+**Examples:**
+1. Do: Re-authenticate before changing email or payout settings.
+2. Don't: Allow critical changes without confirmation.
+
+### [AUTH-35] Use Multi-Factor Authentication (MFA)
+**Identity:** AUTH-35
+**Rule:** Use MFA for high-value or sensitive accounts and transactions.
+**Rationale:** MFA reduces risk of credential compromise.
+**Implementation:** Support TOTP, push, or hardware keys; require MFA for admins.
+**Verification:** Ensure MFA is required and enforced for high-risk actions.
+**Examples:**
+1. Do: Require MFA for admin and privileged accounts.
+2. Don't: Allow privileged access with passwords only.
