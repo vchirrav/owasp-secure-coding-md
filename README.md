@@ -1,8 +1,8 @@
 # OWASP Secure Coding & Security Best Practices (Markdown)
 
-This repository provides a machine-readable, Markdown-optimized implementation of the **OWASP Secure Coding Practices Quick Reference Guide (v2.1)**, along with modern security categories like **Docker**, **Kubernetes**, **CI/CD**, and **Supply Chain Security**.
+This repository provides a machine-readable, Markdown-optimized implementation of the **OWASP Secure Coding Practices Quick Reference Guide (v2.1)**, plus modern security domains such as **API Security**, **Cloud/Kubernetes**, **CI/CD**, **Supply Chain**, **IaC**, and **Secrets Management**.
 
-It is designed specifically to be consumed by **AI Agents (e.g., Claude Code, GitHub Copilot)** and LLMs to facilitate token-efficient, context-aware security audits and code generation.
+It is designed specifically to be consumed by **AI Agents (e.g., Claude Code, GitHub Copilot)** and LLMs to facilitate token-efficient, context-aware security audits and code generation. Each rule follows a consistent Identity pattern (Identity, Rule, Rationale, Implementation, Verification, Examples) to make the guidance explicit and actionable.
 
 ##  Repository Structure
 
@@ -10,21 +10,28 @@ The rules are modularized into atomic Markdown files in the `rules/` directory t
 
 | Category | File Path | Focus Area |
 | :--- | :--- | :--- |
-| **Input Validation** | `rules/input-validation.md` | XSS, Injection, Data Sanitization |
-| **Output Encoding** | `rules/output-encoding.md` | XSS Prevention, Safe Display |
-| **Authentication** | `rules/authentication-password-mgmt.md` | Login, Passwords, MFA |
-| **Session Mgmt** | `rules/session-management.md` | Cookies, Timeouts, Hijacking |
-| **Access Control** | `rules/access-control.md` | RBAC, IDOR, Authorization |
-| **API Security** | `rules/api-security.md` | BOLA, Rate Limiting, JWTs |
-| **Docker Security** | `rules/dockerfile-security.md` | Image Hardening, Rootless, Secrets |
-| **K8s & Cloud** | `rules/cloud-native-k8s.md` | Pod Security, Network Policies |
-| **CI/CD Security** | `rules/cicd-pipeline-security.md` | Pipeline Integrity, Runners |
-| **Supply Chain** | `rules/software-supply-chain.md` | SBOM, Signing, Dependencies |
-| **Secrets Mgmt** | `rules/secrets-management.md` | Vaults, Env Vars, Leaks |
-| **IaC Security** | `rules/iac-security.md` | Terraform, CloudFormation |
-| **Client Security** | `rules/client-side-security.md` | CSP, Headers, DOM Safety |
-
-*(See the `rules/` directory for the full list including Cryptography, Error Handling, and more.)*
+| **Access Control** | `rules/access-control.md` | Authorization, RBAC/ABAC, IDOR |
+| **API Security** | `rules/api-security.md` | BOLA/BFLA, rate limiting, tokens |
+| **Authentication** | `rules/authentication-password-mgmt.md` | Login, passwords, MFA |
+| **CI/CD Security** | `rules/cicd-pipeline-security.md` | Pipeline integrity, runners, secrets |
+| **Client Security** | `rules/client-side-security.md` | CSP, headers, DOM safety |
+| **Cloud & Kubernetes** | `rules/cloud-native-k8s.md` | Pod security, network policies |
+| **Communication Security** | `rules/communication-security.md` | TLS, headers, transport safety |
+| **Cryptographic Practices** | `rules/cryptographic-practices.md` | Encryption, hashing, key mgmt |
+| **Data Protection** | `rules/data-protection.md` | Storage, retention, leakage |
+| **Database Security** | `rules/database-security.md` | SQLi prevention, DB hardening |
+| **Docker Security** | `rules/dockerfile-security.md` | Image hardening, build safety |
+| **Error Handling & Logging** | `rules/error-handling-logging.md` | Safe errors, audit logging |
+| **File Management** | `rules/file-management.md` | Uploads, file access, traversal |
+| **General Practices** | `rules/general-coding-practices.md` | Secure defaults, least privilege |
+| **IaC Security** | `rules/iac-security.md` | Terraform/CloudFormation, drift |
+| **Input Validation** | `rules/input-validation.md` | Validation, canonicalization |
+| **Memory Management** | `rules/memory-management.md` | Buffers, leaks, safe APIs |
+| **Output Encoding** | `rules/output-encoding.md` | XSS prevention, safe display |
+| **Secrets Mgmt** | `rules/secrets-management.md` | Vaults, rotation, leakage |
+| **Session Mgmt** | `rules/session-management.md` | Cookies, timeouts, CSRF |
+| **Software Supply Chain** | `rules/software-supply-chain.md` | SBOM, signing, provenance |
+| **System Configuration** | `rules/system-configuration.md` | Hardening, patches, HTTP |
 
 ---
 
@@ -64,6 +71,7 @@ When I ask for a "Security Audit" or "Secure Code Generation":
 
 * **Atomic Context:** If you are working on a massive project, do not load the entire `rules/` folder into the context. Load files lazily.
 * **Checklist Mode:** Ask Claude to output a table: `| Rule ID | Status (Pass/Fail) | Remediation |`.
+* **Rule Identity Pattern:** Each rule includes Identity, Rule, Rationale, Implementation, Verification, and Examples for consistent application.
 * **Pre-Commit Hook:** You can script a simple check to ensure specific sensitive files (like `auth` middleware) are always reviewed against `rules/authentication-password-mgmt.md` before merging.
 
 ##  License
