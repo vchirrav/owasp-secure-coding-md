@@ -1,0 +1,9 @@
+services:
+  owasp-mcp-server:
+    build:
+      context: ..
+      dockerfile: mcp-server/Dockerfile
+    stdin_open: true
+    volumes:
+      # Mount local rules for development override (optional)
+      - ../rules:/app/rules:ro

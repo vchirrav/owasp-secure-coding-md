@@ -74,6 +74,61 @@ When I ask for a "Security Audit" or "Secure Code Generation":
 * **Rule Identity Pattern:** Each rule includes Identity, Rule, Rationale, Implementation, Verification, and Examples for consistent application.
 * **Pre-Commit Hook:** You can script a simple check to ensure specific sensitive files (like `auth` middleware) are always reviewed against `rules/authentication-password-mgmt.md` before merging.
 
+## MCP Server
+
+This repository includes an MCP (Model Context Protocol) server that exposes the security rules as programmable tools and resources for AI agents.
+
+### Quick Start
+
+```bash
+cd mcp-server
+npm install && npm run build
+npm start
+```
+
+Or with Docker (from repository root):
+
+```bash
+docker build -t owasp-mcp-server -f mcp-server/Dockerfile .
+docker run -i owasp-mcp-server
+```
+
+### Available Tools
+
+| Tool | Parameters | Description |
+| :--- | :--- | :--- |
+| `list_rules` | None | List all 22 rule domains with prefixes and descriptions |
+| `get_rule` | `rule_id` | Get a specific rule by ID (e.g., `INPUT-01`) or entire domain (e.g., `input-validation`) |
+| `audit_checklist` | `domain` | Structured audit checklist table for a domain |
+
+### Client Configuration
+
+**Claude Desktop** — add to `claude_desktop_config.json`:
+```json
+{
+  "mcpServers": {
+    "owasp-secure-coding": {
+      "command": "node",
+      "args": ["/path/to/owasp-secure-coding-md/mcp-server/dist/index.js"]
+    }
+  }
+}
+```
+
+**Claude Code** — add `.mcp.json` to your project root:
+```json
+{
+  "mcpServers": {
+    "owasp-secure-coding": {
+      "command": "node",
+      "args": ["/path/to/owasp-secure-coding-md/mcp-server/dist/index.js"]
+    }
+  }
+}
+```
+
+See [`SKILL.md`](SKILL.md) for full documentation including Docker configuration, all 22 resources, and example invocations.
+
 ##  License
 This repository contains synthesized information from the following sources and standards:
 * OWASP Secure Coding Practices Quick Reference Guide v2.1

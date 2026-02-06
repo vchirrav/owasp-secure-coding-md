@@ -14,7 +14,7 @@ All security rules live in `rules/` as standalone Markdown files, one per securi
 
 1. **Title with acronym prefix** (e.g., `[INPUT-xx]`, `[DOCKER-xx]`, `[API-xx]`)
 2. **Principles section** explaining the domain rationale
-3. **Numbered checklist rules** with actionable items
+3. **Numbered checklist rules** — each rule follows the Identity pattern with six fields: **Identity**, **Rule**, **Rationale**, **Implementation**, **Verification**, **Examples**
 4. **Source citations** to OWASP, Docker, Kubernetes, NIST, CIS, SLSA standards
 
 Rule IDs are hierarchical (e.g., `[INPUT-01]`, `[AUTH-05]`, `[K8S-12]`) and should be cited in audit output.
@@ -67,11 +67,13 @@ When asked for a "Security Audit" or "Secure Code Generation":
 | DATA | `rules/data-protection.md` | Encryption at rest, PII handling |
 | ERR | `rules/error-handling-logging.md` | Logging, audit trails, debug info |
 | MEM | `rules/memory-management.md` | Buffer overflows, resource leaks |
+| GEN | `rules/general-coding-practices.md` | Secure defaults, least privilege |
 | SYS | `rules/system-configuration.md` | Server hardening, patching |
 
 ## Conventions for Editing Rules
 
-- Maintain the existing format: principle statement followed by numbered checklist items
+- Maintain the existing format: Principles section followed by numbered checklist rules
+- Each rule must include all six Identity pattern fields: **Identity**, **Rule**, **Rationale**, **Implementation**, **Verification**, **Examples**
 - Use the established rule ID prefix for the file (e.g., new rules in `api-security.md` use `[API-xx]`)
 - Cite authoritative sources (OWASP, CIS, NIST, vendor docs)
 - Keep rules as concise, actionable checklist items — not prose essays
