@@ -14,7 +14,7 @@ All security rules live in `rules/` as standalone Markdown files, one per securi
 
 1. **Title with acronym prefix** (e.g., `[INPUT-xx]`, `[DOCKER-xx]`, `[API-xx]`)
 2. **Principles section** explaining the domain rationale
-3. **Numbered checklist rules** — each rule follows the Identity pattern with six fields: **Identity**, **Rule**, **Rationale**, **Implementation**, **Verification**, **Examples**
+3. **Numbered checklist rules**, each with 6 fields: Identity, Rule, Rationale, Implementation, Verification, Examples
 4. **Source citations** to OWASP, Docker, Kubernetes, NIST, CIS, SLSA standards
 
 Rule IDs are hierarchical (e.g., `[INPUT-01]`, `[AUTH-05]`, `[K8S-12]`) and should be cited in audit output.
@@ -66,8 +66,8 @@ When asked for a "Security Audit" or "Secure Code Generation":
 | FILE | `rules/file-management.md` | Uploads, LFI/RFI, path traversal |
 | DATA | `rules/data-protection.md` | Encryption at rest, PII handling |
 | ERR | `rules/error-handling-logging.md` | Logging, audit trails, debug info |
+| GEN | `rules/general-coding-practices.md` | Secure defaults, least privilege, defense in depth |
 | MEM | `rules/memory-management.md` | Buffer overflows, resource leaks |
-| GEN | `rules/general-coding-practices.md` | Secure defaults, least privilege |
 | SYS | `rules/system-configuration.md` | Server hardening, patching |
 
 ## Conventions for Editing Rules
