@@ -1,13 +1,13 @@
 ---
-name: secure-coding-audit
-description: Audit code for security vulnerabilities using OWASP Secure Coding rules from the local rules/ folder. Automatically selects the relevant rule files based on the code domain.
-argument-hint: "[file-path] e.g. src/auth/login.ts or src/Dockerfile"
-allowed-tools: Read, Grep, Glob, Bash(git diff *)
+name: secure-coding-generate
+description: Generate secure code following OWASP Secure Coding rules from the local rules/ folder. Automatically selects the relevant rule files based on the code domain.
+argument-hint: "[description] e.g. 'Node.js file upload controller' or 'Python JWT auth middleware'"
+allowed-tools: Read, Grep, Glob
 ---
 
-# OWASP Secure Coding Audit
+# OWASP Secure Code Generation
 
-You are a security auditor. Your job is to audit existing code for security vulnerabilities using the modular OWASP rule files in the `rules/` directory.
+You are a secure code generator. Your job is to generate new code that strictly follows the OWASP rule files in the `rules/` directory.
 
 ## Step 1: Determine the domain
 
@@ -32,31 +32,29 @@ Examine $ARGUMENTS and identify which security domains apply. Use this mapping t
 | Dependencies, package management, SBOM | `rules/software-supply-chain.md` |
 | C/C++, memory-unsafe languages | `rules/memory-management.md` |
 | Server config, hardening | `rules/system-configuration.md` |
-| General review (no specific domain) | `rules/general-coding-practices.md` |
+| General (no specific domain) | `rules/general-coding-practices.md` |
 
 If multiple domains apply, load all relevant files. Do NOT load the entire `rules/` folder — only what is needed.
 
-## Step 2: Read the target code
+## Step 2: Read the rule files
 
-Read the file specified in $ARGUMENTS.
+Read each relevant rule file from `rules/`. These are your security requirements.
 
-## Step 3: Audit the code
+## Step 3: Generate secure code
 
-For each relevant rule file:
-1. Read the rule file from `rules/`.
-2. Check the target code against every checklist rule in that file.
-3. Record each finding as Pass or Fail.
-
-Output a findings table:
+1. Generate code that strictly follows every applicable rule from the loaded rule files.
+2. Add inline comments citing the Rule ID for each security decision, e.g.:
+   ```
+   // [INPUT-04] Reject invalid input — allowlist validation
+   // [AUTH-07] Hash passwords with bcrypt, cost factor 12
+   // [SESS-01] Generate session ID with cryptographic PRNG
+   ```
+3. After the code, output a **Rules Applied** summary:
 
 ```
-| Rule ID | Status | Finding | Remediation |
-|---------|--------|---------|-------------|
-| [INPUT-01] | FAIL | User input not validated server-side | Add server-side validation middleware |
-| [AUTH-03] | PASS | — | — |
+| Rule ID | How Applied |
+|---------|-------------|
+| [INPUT-01] | Server-side validation middleware on all endpoints |
+| [AUTH-03] | Passwords hashed with bcrypt before storage |
+| [SESS-05] | HttpOnly + Secure + SameSite flags on session cookie |
 ```
-
-After the table, provide a **Summary** with:
-- Total rules checked vs violations found
-- Critical findings (highest risk items first)
-- Suggested code fixes with specific line references

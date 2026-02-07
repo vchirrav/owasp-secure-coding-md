@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Documentation-only repository containing OWASP Secure Coding Practices (v2.1) and modern security guidelines (Docker, Kubernetes, CI/CD, Supply Chain) as modular Markdown files. Designed for AI agent consumption to perform token-efficient security audits and secure code generation.
 
-No build, test, or lint commands — pure Markdown reference repository.
+No build, test, or lint commands — pure Markdown reference repository (except for the `mcp-server/` which is a Node.js TypeScript project).
 
 ## Architecture
 
@@ -23,8 +23,20 @@ Rule IDs are hierarchical (e.g., `[INPUT-01]`, `[AUTH-05]`, `[K8S-12]`) and shou
 
 This repo ships two Claude Code skills in `.claude/skills/`:
 
-- **`/secure-coding-audit`** — Audits code or generates secure code using **local** rule files from the `rules/` directory. Use this when working within this repository or when rules are cloned locally.
-- **`/secure-coding-remote`** — Same audit workflow, but fetches rule files from GitHub via `WebFetch`. Designed to be **copied into any project** (no local clone needed). See README for setup instructions.
+- **`/secure-coding-audit`** — Audits existing code for security vulnerabilities using the local `rules/` directory. Outputs a findings table with Pass/Fail per rule.
+- **`/secure-coding-generate`** — Generates new secure code following the local `rules/` directory. Outputs code with inline Rule ID citations.
+
+Both skills automatically detect the relevant security domain and load only the needed rule files.
+
+## MCP Server
+
+The `mcp-server/` directory contains a Node.js MCP server that exposes all 22 rule domains as tools and resources. Build and run with:
+
+```bash
+cd mcp-server && npm install && npm run build && npm start
+```
+
+Tools: `list_rules`, `get_rule`, `audit_checklist`. See `SKILL.md` in the repo root for full MCP documentation.
 
 ## Security Auditing Persona
 

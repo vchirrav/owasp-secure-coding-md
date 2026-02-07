@@ -39,9 +39,9 @@ The rules are modularized into atomic Markdown files in the `rules/` directory t
 
 There are **three ways** to use these rules with Claude Code. Choose the option that best fits your workflow.
 
-### Option 1: Clone Locally + CLAUDE.md (Full Offline Access)
+### Option 1: Clone Locally + CLAUDE.md
 
-Clone this repository into (or alongside) your project so the `rules/` folder is accessible locally. Then add a security auditing persona to your project's `CLAUDE.md` to teach Claude where the rules are.
+Clone this repository so the `rules/` folder is accessible locally. Then add a security auditing persona to your project's `CLAUDE.md` to teach Claude how and where to find the rules.
 
 **Setup:**
 
@@ -75,172 +75,104 @@ When I ask for a "Security Audit" or "Secure Code Generation":
 ```
 
 **Pros:** Fully offline, fastest reads, rules are version-pinned to your clone.
-**Cons:** Requires cloning/copying files into every project that needs them.
+**Cons:** Requires manual prompting to specify which rule files to load.
 
 ---
 
-### Option 2: MCP Server (Centralized Remote Access)
+### Option 2: Clone Locally + Skills (Audit & Generate)
 
-Configure an MCP (Model Context Protocol) server so Claude Code can access the rule files from a central location without cloning them into every project. This is ideal for teams that want a single source of truth across multiple repositories.
+Clone the `rules/` folder locally (same as Option 1), but instead of writing CLAUDE.md instructions, copy the **two skill files** into your project. The skills automatically detect the relevant security domain and load only the needed rule files.
 
-**Option 2a: Filesystem MCP Server (local shared directory)**
-
-Clone the repo once to a shared location, then configure a filesystem MCP server to expose the rules.
-
-Add to your Claude Code MCP settings (`~/.claude/settings.json` or project `.claude/settings.json`):
-
-```json
-{
-  "mcpServers": {
-    "owasp-rules": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@anthropic-ai/mcp-filesystem",
-        "/path/to/owasp-secure-coding-md/rules"
-      ]
-    }
-  }
-}
-```
-
-Replace `/path/to/owasp-secure-coding-md/rules` with the absolute path to your local clone's `rules/` directory.
-
-**Option 2b: GitHub MCP Server (direct from repository)**
-
-Use a GitHub-backed MCP server to fetch rule files directly from this repository without any local clone.
-
-```json
-{
-  "mcpServers": {
-    "owasp-rules": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@anthropic-ai/mcp-github"
-      ],
-      "env": {
-        "GITHUB_TOKEN": "<your-github-token>"
-      }
-    }
-  }
-}
-```
-
-Then instruct Claude to read rules from the `vchirrav/owasp-secure-coding-md` repository.
-
-**Usage (either MCP option):**
-```
-> Audit src/controllers/upload.ts against the OWASP file management
-> and input validation rules. Use the MCP server to read the rule files.
-```
-
-**Pros:** Single source of truth, no files copied into projects, team-wide access.
-**Cons:** Requires MCP server setup, depends on network (2b) or shared filesystem (2a).
-
----
-
-### Option 3: Claude Code Skill (Zero Setup, Fetch from GitHub)
-
-Copy a single skill file into your project's `.claude/skills/` directory. The skill automatically detects the security domain of your code and fetches only the relevant rule files directly from this GitHub repository — no local clone or MCP server needed.
+This repo provides two separate skills:
+- **`/secure-coding-audit`** — Audits existing code against the rules and outputs a findings table
+- **`/secure-coding-generate`** — Generates new secure code following the rules with inline Rule ID citations
 
 **Setup:**
 
 ```bash
-# Create the skills directory in your project
-mkdir -p .claude/skills/secure-coding-remote
+# 1. Get the rules into your project (same as Option 1)
+git clone https://github.com/vchirrav/owasp-secure-coding-md.git
+cp -r owasp-secure-coding-md/rules ./rules
 
-# Copy the skill file from this repo (or download it)
-curl -o .claude/skills/secure-coding-remote/SKILL.md \
-  https://raw.githubusercontent.com/vchirrav/owasp-secure-coding-md/main/.claude/skills/secure-coding-remote/SKILL.md
+# 2. Copy the skill files into your project
+mkdir -p .claude/skills/secure-coding-audit
+mkdir -p .claude/skills/secure-coding-generate
+
+cp owasp-secure-coding-md/.claude/skills/secure-coding-audit/SKILL.md \
+   .claude/skills/secure-coding-audit/SKILL.md
+
+cp owasp-secure-coding-md/.claude/skills/secure-coding-generate/SKILL.md \
+   .claude/skills/secure-coding-generate/SKILL.md
 ```
-
-Or manually copy the file from this repository's `.claude/skills/secure-coding-remote/SKILL.md` into your project.
 
 **Usage:**
 
-Once the skill is in place, invoke it in Claude Code with:
-
+Audit existing code:
 ```
-> /secure-coding-remote src/auth/login.ts
-> /secure-coding-remote "Node.js file upload controller"
+> /secure-coding-audit src/auth/login.ts
+> /secure-coding-audit src/Dockerfile
 ```
 
-The skill will:
-1. Determine which security domains apply to your code
-2. Fetch the relevant rule files from GitHub (`raw.githubusercontent.com`)
-3. Audit your code or generate secure code following the rules
-4. Output a findings table with Rule IDs and remediation steps
+Generate new secure code:
+```
+> /secure-coding-generate "Node.js file upload controller"
+> /secure-coding-generate "Python JWT auth middleware"
+```
 
-**Pros:** Single-file setup, no local clone needed, always fetches latest rules from GitHub.
-**Cons:** Requires internet access to fetch rules, slightly slower than local reads.
+**Audit skill output:**
+```
+| Rule ID | Status | Finding | Remediation |
+|---------|--------|---------|-------------|
+| [INPUT-01] | FAIL | User input not validated server-side | Add server-side validation middleware |
+| [AUTH-03] | PASS | — | — |
+```
 
----
+**Generate skill output:** Produces code with inline Rule ID comments (e.g., `// [INPUT-04] Reject invalid input`) followed by a rules-applied summary table.
 
-### Quick Comparison
-
-| | Option 1: Local Clone | Option 2: MCP Server | Option 3: Skill File |
-|---|---|---|---|
-| **Setup effort** | Clone repo + edit CLAUDE.md | Configure MCP server | Copy one file |
-| **Rules location** | Local `rules/` folder | Central server | Fetched from GitHub |
-| **Offline support** | Yes | Yes (2a) / No (2b) | No |
-| **Auto-updates** | Manual `git pull` | Manual (2a) / Auto (2b) | Always latest |
-| **Best for** | Solo dev, air-gapped | Teams, multi-repo | Quick start, any project |
+**Pros:** Automatic domain detection, no manual rule file selection, dedicated workflows for audit vs generation.
+**Cons:** Requires local `rules/` folder (same as Option 1).
 
 ---
 
-## Prompting Tips
+### Option 3: MCP Server (Programmatic Access)
 
-### Don't (Token Heavy)
-> "Here is my code. Review it against all OWASP secure coding rules."
-> *(Forces loading too much context, reduces quality.)*
+Run the **MCP server included in this repository** (`mcp-server/`) to expose the rules as programmable tools and resources. AI agents such as Claude Desktop, Claude Code, and other MCP-compatible clients can connect to this server to look up security rules, retrieve domain files, and generate audit checklists — without needing the `rules/` folder in every project.
 
-### Do (Context Optimized)
-> "Review this `login.py` file. First, read `rules/authentication-password-mgmt.md` and `rules/session-management.md`. Then, list any violations referencing the Rule IDs."
-
-### Do (Generative)
-> "Write a secure file upload controller in Node.js. Base your implementation strictly on the guidelines in `rules/file-management.md` and `rules/input-validation.md`."
-
-### Do (Skill Invocation)
-> `/secure-coding-remote src/controllers/authController.ts`
-
----
-
-## Workflow Tips
-
-* **Atomic Context:** Do not load the entire `rules/` folder into the context. Load files lazily, only as needed.
-* **Checklist Mode:** Ask Claude to output a table: `| Rule ID | Status (Pass/Fail) | Remediation |`.
-* **Rule Identity Pattern:** Each rule includes Identity, Rule, Rationale, Implementation, Verification, and Examples for consistent application.
-* **Pre-Commit Hook:** Script a check to ensure sensitive files (like `auth` middleware) are reviewed against `rules/authentication-password-mgmt.md` before merging.
-
-## MCP Server
-
-This repository includes an MCP (Model Context Protocol) server that exposes the security rules as programmable tools and resources for AI agents.
-
-### Quick Start
+**Build & Run:**
 
 ```bash
+# Local (Node.js)
 cd mcp-server
-npm install && npm run build
+npm install
+npm run build
 npm start
 ```
 
-Or with Docker (from repository root):
-
 ```bash
+# Docker (from repository root)
 docker build -t owasp-mcp-server -f mcp-server/Dockerfile .
 docker run -i owasp-mcp-server
 ```
 
-### Available Tools
+```bash
+# Docker Compose (development, with live rules mount)
+cd mcp-server
+docker compose up --build
+```
+
+**Available MCP Tools:**
 
 | Tool | Parameters | Description |
 | :--- | :--- | :--- |
-| `list_rules` | None | List all 22 rule domains with prefixes and descriptions |
-| `get_rule` | `rule_id` | Get a specific rule by ID (e.g., `INPUT-01`) or entire domain (e.g., `input-validation`) |
-| `audit_checklist` | `domain` | Structured audit checklist table for a domain |
+| `list_rules` | None | Returns JSON list of all 22 rule domains with prefix, name, and description |
+| `get_rule` | `rule_id` (string) | Accepts a rule ID like `INPUT-01` (returns that specific rule) or a domain like `input-validation` (returns the full file) |
+| `audit_checklist` | `domain` (string) | Returns a structured markdown table: `Rule ID | Rule | Verification` |
 
-### Client Configuration
+**Available MCP Resources (22):**
+
+Each rule file is exposed as a resource with URI pattern `secure-coding://rules/{domain}` (e.g., `secure-coding://rules/input-validation`). Resources return the full Markdown content of the rule file.
+
+**Client Configuration:**
 
 **Claude Desktop** — add to `claude_desktop_config.json`:
 ```json
@@ -249,6 +181,18 @@ docker run -i owasp-mcp-server
     "owasp-secure-coding": {
       "command": "node",
       "args": ["/path/to/owasp-secure-coding-md/mcp-server/dist/index.js"]
+    }
+  }
+}
+```
+
+**Claude Desktop (Docker):**
+```json
+{
+  "mcpServers": {
+    "owasp-secure-coding": {
+      "command": "docker",
+      "args": ["run", "-i", "owasp-mcp-server"]
     }
   }
 }
@@ -266,7 +210,63 @@ docker run -i owasp-mcp-server
 }
 ```
 
-See [`SKILL.md`](SKILL.md) for full documentation including Docker configuration, all 22 resources, and example invocations.
+**Example Tool Invocations:**
+
+```
+Tool: list_rules
+-> Returns JSON array of 22 domains with prefixes and descriptions
+
+Tool: get_rule { "rule_id": "INPUT-01" }
+-> Returns the [INPUT-01] rule section (Identity, Rule, Rationale, Implementation, Verification, Examples)
+
+Tool: get_rule { "rule_id": "api-security" }
+-> Returns the full api-security.md content
+
+Tool: audit_checklist { "domain": "dockerfile-security" }
+-> Returns: | Rule ID | Rule | Verification | for all DOCKER-xx rules
+```
+
+**Pros:** Single server for all projects, programmatic tool access, structured query by rule ID or domain.
+**Cons:** Requires building and running the MCP server.
+
+---
+
+### Quick Comparison
+
+| | Option 1: CLAUDE.md | Option 2: Skills | Option 3: MCP Server |
+|---|---|---|---|
+| **Setup** | Clone + edit CLAUDE.md | Clone + copy 2 skill files | Build & run MCP server |
+| **Rules location** | Local `rules/` folder | Local `rules/` folder | Served by MCP server |
+| **Domain detection** | Manual (you specify files) | Automatic (skill detects) | Automatic (query by tool) |
+| **Offline support** | Yes | Yes | Yes |
+| **Best for** | Quick start, full control | Hands-off audit & generation | Teams, multi-repo, programmatic |
+
+---
+
+## Prompting Tips
+
+### Don't (Token Heavy)
+> "Here is my code. Review it against all OWASP secure coding rules."
+> *(Forces loading too much context, reduces quality.)*
+
+### Do (Context Optimized — Option 1)
+> "Review this `login.py` file. First, read `rules/authentication-password-mgmt.md` and `rules/session-management.md`. Then, list any violations referencing the Rule IDs."
+
+### Do (Skill Invocation — Option 2)
+> `/secure-coding-audit src/controllers/authController.ts`
+> `/secure-coding-generate "Express.js REST API with JWT auth"`
+
+### Do (MCP Tool — Option 3)
+> "Use the `get_rule` tool to fetch the `api-security` domain, then audit `src/api/routes.ts` against those rules."
+
+---
+
+## Workflow Tips
+
+* **Atomic Context:** Do not load the entire `rules/` folder into the context. Load files lazily, only as needed.
+* **Checklist Mode:** Ask Claude to output a table: `| Rule ID | Status (Pass/Fail) | Remediation |`.
+* **Rule Identity Pattern:** Each rule includes Identity, Rule, Rationale, Implementation, Verification, and Examples for consistent application.
+* **Pre-Commit Hook:** Script a check to ensure sensitive files (like `auth` middleware) are reviewed against `rules/authentication-password-mgmt.md` before merging.
 
 ## License
 This repository contains synthesized information from the following sources and standards:
