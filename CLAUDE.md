@@ -21,12 +21,22 @@ Rule IDs are hierarchical (e.g., `[INPUT-01]`, `[AUTH-05]`, `[K8S-12]`) and shou
 
 ## Skills
 
-This repo ships two Claude Code skills in `.claude/skills/`:
+This repo ships two skills in two formats:
+
+### Claude Code Skills (`.claude/skills/`)
 
 - **`/secure-coding-audit`** — Audits existing code for security vulnerabilities using the local `rules/` directory. Outputs a findings table with Pass/Fail per rule.
 - **`/secure-coding-generate`** — Generates new secure code following the local `rules/` directory. Outputs code with inline Rule ID citations.
 
 Both skills automatically detect the relevant security domain and load only the needed rule files.
+
+### skills.sh Skills (top-level folders)
+
+The same two skills are also available in the [skills.sh](https://skills.sh) format as top-level folders (`secure-coding-audit/` and `secure-coding-generate/`), each containing a `SKILL.md` with YAML frontmatter. Install via:
+
+```bash
+npx skills add vchirrav/owasp-secure-coding-md
+```
 
 ## MCP Server
 
@@ -36,7 +46,7 @@ The `mcp-server/` directory contains a Node.js MCP server that exposes all 22 ru
 cd mcp-server && npm install && npm run build && npm start
 ```
 
-Tools: `list_rules`, `get_rule`, `audit_checklist`. See `SKILL.md` in the repo root for full MCP documentation.
+Tools: `list_rules`, `get_rule`, `audit_checklist`. See the README for full MCP documentation.
 
 ## Security Auditing Persona
 

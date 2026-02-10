@@ -6,7 +6,22 @@ It is designed specifically to be consumed by **AI Agents (e.g., Claude Code, Gi
 
 ## Repository Structure
 
-The rules are modularized into atomic Markdown files in the `rules/` directory to allow for granular context injection.
+The rules are modularized into atomic Markdown files in the `rules/` directory to allow for granular context injection. The repository also includes top-level skill folders for [skills.sh](https://skills.sh) compatibility.
+
+```
+owasp-secure-coding-md/
+├── rules/                         # 22 security rule files (one per domain)
+├── secure-coding-audit/           # skills.sh skill: audit code
+│   └── SKILL.md
+├── secure-coding-generate/        # skills.sh skill: generate secure code
+│   └── SKILL.md
+├── .claude/skills/                # Native Claude Code skills
+├── mcp-server/                    # MCP server (Node.js/TypeScript)
+├── CLAUDE.md                      # Claude Code project instructions
+└── README.md
+```
+
+### Rule Files
 
 | Category | File Path | Focus Area |
 | :--- | :--- | :--- |
@@ -37,7 +52,7 @@ The rules are modularized into atomic Markdown files in the `rules/` directory t
 
 ## Integration Options
 
-There are **three ways** to use these rules with Claude Code. Choose the option that best fits your workflow.
+There are **four ways** to use these rules with AI agents. Choose the option that best fits your workflow.
 
 ### Option 1: Clone Locally + CLAUDE.md
 
@@ -231,15 +246,37 @@ Tool: audit_checklist { "domain": "dockerfile-security" }
 
 ---
 
+### Option 4: skills.sh (Cross-Agent Install)
+
+Install the skills via [skills.sh](https://skills.sh), a directory that indexes Agent Skills for tools like Claude Code, Cursor, and Copilot. This repository includes top-level `secure-coding-audit/` and `secure-coding-generate/` folders with `SKILL.md` files in the standard skills.sh format.
+
+**Install both skills:**
+
+```bash
+npx skills add vchirrav/owasp-secure-coding-md
+```
+
+**Install a specific skill:**
+
+```bash
+npx skills add vchirrav/owasp-secure-coding-md@secure-coding-audit
+npx skills add vchirrav/owasp-secure-coding-md@secure-coding-generate
+```
+
+**Pros:** One-command install, cross-agent compatible (Claude Code, Cursor, Copilot), discoverable via skills.sh leaderboard.
+**Cons:** Requires `npx` and internet access for install.
+
+---
+
 ### Quick Comparison
 
-| | Option 1: CLAUDE.md | Option 2: Skills | Option 3: MCP Server |
-|---|---|---|---|
-| **Setup** | Clone + edit CLAUDE.md | Clone + copy 2 skill files | Build & run MCP server |
-| **Rules location** | Local `rules/` folder | Local `rules/` folder | Served by MCP server |
-| **Domain detection** | Manual (you specify files) | Automatic (skill detects) | Automatic (query by tool) |
-| **Offline support** | Yes | Yes | Yes |
-| **Best for** | Quick start, full control | Hands-off audit & generation | Teams, multi-repo, programmatic |
+| | Option 1: CLAUDE.md | Option 2: Skills | Option 3: MCP Server | Option 4: skills.sh |
+|---|---|---|---|---|
+| **Setup** | Clone + edit CLAUDE.md | Clone + copy 2 skill files | Build & run MCP server | `npx skills add` |
+| **Rules location** | Local `rules/` folder | Local `rules/` folder | Served by MCP server | Installed by skills CLI |
+| **Domain detection** | Manual (you specify files) | Automatic (skill detects) | Automatic (query by tool) | Automatic (skill detects) |
+| **Offline support** | Yes | Yes | Yes | Yes (after install) |
+| **Best for** | Quick start, full control | Hands-off audit & generation | Teams, multi-repo, programmatic | Cross-agent, quick install |
 
 ---
 
