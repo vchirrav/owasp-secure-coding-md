@@ -21,7 +21,7 @@ Rule IDs are hierarchical (e.g., `[INPUT-01]`, `[AUTH-05]`, `[K8S-12]`) and shou
 
 ## Skills
 
-This repo ships two skills in two formats:
+This repo ships **36 skills** in two formats:
 
 ### Claude Code Skills (`.claude/skills/`)
 
@@ -32,10 +32,18 @@ Both skills automatically detect the relevant security domain and load only the 
 
 ### skills.sh Skills (top-level folders)
 
-The same two skills are also available in the [skills.sh](https://skills.sh) format as top-level folders (`secure-coding-audit/` and `secure-coding-generate/`), each containing a `SKILL.md` with YAML frontmatter. Install via:
+36 skills available in the [skills.sh](https://skills.sh) format as top-level folders, each containing a `SKILL.md` with YAML frontmatter. Categories: Secure Coding (2), SAST (10), SCA (4), Secret Scanning (2), Container Security (3), IaC Scanning (3), DAST (2), API Security (2), SBOM (1), License (1), Cloud Security (2), Mobile (1), Network (1), TLS (1), Malware (1), Supply Chain (1).
+
+Install all via:
 
 ```bash
 npx skills add vchirrav/owasp-secure-coding-md
+```
+
+Install a specific skill:
+
+```bash
+npx skills add vchirrav/owasp-secure-coding-md@sast-bandit
 ```
 
 ## MCP Server

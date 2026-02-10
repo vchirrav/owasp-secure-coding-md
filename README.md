@@ -11,10 +11,43 @@ The rules are modularized into atomic Markdown files in the `rules/` directory t
 ```
 owasp-secure-coding-md/
 ├── rules/                         # 22 security rule files (one per domain)
-├── secure-coding-audit/           # skills.sh skill: audit code
-│   └── SKILL.md
-├── secure-coding-generate/        # skills.sh skill: generate secure code
-│   └── SKILL.md
+├── secure-coding-audit/           # Skill: OWASP secure coding audit
+├── secure-coding-generate/        # Skill: OWASP secure code generation
+├── sast-semgrep/                  # Skill: Semgrep multi-language SAST
+├── sast-bandit/                   # Skill: Bandit Python SAST
+├── sast-eslint-security/          # Skill: ESLint JS/TS security
+├── sast-spotbugs/                 # Skill: SpotBugs Java SAST
+├── sast-gosec/                    # Skill: gosec Go SAST
+├── sast-flawfinder/               # Skill: Flawfinder C/C++ SAST
+├── sast-brakeman/                 # Skill: Brakeman Ruby SAST
+├── sast-psalm/                    # Skill: Psalm PHP taint analysis
+├── sast-cargo-audit/              # Skill: cargo-audit Rust SAST
+├── sast-detekt/                   # Skill: detekt Kotlin SAST
+├── sca-osv-scanner/               # Skill: OSV-Scanner SCA
+├── sca-grype/                     # Skill: Grype SCA
+├── sca-npm-audit/                 # Skill: npm audit SCA
+├── sca-pip-audit/                 # Skill: pip-audit SCA
+├── secret-scan-gitleaks/          # Skill: Gitleaks secret detection
+├── secret-scan-trufflehog/        # Skill: TruffleHog secret detection
+├── container-scan-trivy/          # Skill: Trivy container scanning
+├── container-scan-hadolint/       # Skill: Hadolint Dockerfile lint
+├── container-scan-dockle/         # Skill: Dockle image audit
+├── iac-scan-checkov/              # Skill: Checkov IaC scanning
+├── iac-scan-tfsec/                # Skill: tfsec Terraform scanning
+├── iac-scan-kube-linter/          # Skill: KubeLinter K8s lint
+├── dast-zap/                      # Skill: OWASP ZAP DAST
+├── dast-nuclei/                   # Skill: Nuclei vulnerability scanner
+├── api-security-schemathesis/     # Skill: Schemathesis API testing
+├── api-security-spectral/         # Skill: Spectral API spec lint
+├── sbom-syft/                     # Skill: Syft SBOM generation
+├── license-scan-scancode/         # Skill: ScanCode license scan
+├── cloud-security-prowler/        # Skill: Prowler cloud posture
+├── cloud-security-scoutsuite/     # Skill: ScoutSuite cloud audit
+├── mobile-security-mobsf/         # Skill: MobSF mobile security
+├── network-scan-nmap/             # Skill: Nmap network scanning
+├── tls-scan-testssl/              # Skill: testssl.sh TLS analysis
+├── malware-scan-yara/             # Skill: YARA malware detection
+├── dependency-confusion-detect/   # Skill: dependency confusion check
 ├── .claude/skills/                # Native Claude Code skills
 ├── mcp-server/                    # MCP server (Node.js/TypeScript)
 ├── CLAUDE.md                      # Claude Code project instructions
@@ -248,9 +281,9 @@ Tool: audit_checklist { "domain": "dockerfile-security" }
 
 ### Option 4: skills.sh (Cross-Agent Install)
 
-Install the skills via [skills.sh](https://skills.sh), a directory that indexes Agent Skills for tools like Claude Code, Cursor, and Copilot. This repository includes top-level `secure-coding-audit/` and `secure-coding-generate/` folders with `SKILL.md` files in the standard skills.sh format.
+Install the skills via [skills.sh](https://skills.sh), a directory that indexes Agent Skills for tools like Claude Code, Cursor, and Copilot. This repository ships **36 skills** covering the full security toolchain.
 
-**Install both skills:**
+**Install all skills:**
 
 ```bash
 npx skills add vchirrav/owasp-secure-coding-md
@@ -259,11 +292,52 @@ npx skills add vchirrav/owasp-secure-coding-md
 **Install a specific skill:**
 
 ```bash
-npx skills add vchirrav/owasp-secure-coding-md@secure-coding-audit
-npx skills add vchirrav/owasp-secure-coding-md@secure-coding-generate
+npx skills add vchirrav/owasp-secure-coding-md@<skill-name>
 ```
 
-**Pros:** One-command install, cross-agent compatible (Claude Code, Cursor, Copilot), discoverable via skills.sh leaderboard.
+**Available Skills (36):**
+
+| Category | Skill Name | Tool | Language / Target |
+|----------|-----------|------|-------------------|
+| **Secure Coding** | `secure-coding-audit` | OWASP Rules | All (rule-based audit) |
+| | `secure-coding-generate` | OWASP Rules | All (secure code gen) |
+| **SAST** | `sast-semgrep` | Semgrep | 30+ languages |
+| | `sast-bandit` | Bandit | Python |
+| | `sast-eslint-security` | ESLint + security plugin | JavaScript / TypeScript |
+| | `sast-spotbugs` | SpotBugs + Find Security Bugs | Java |
+| | `sast-gosec` | gosec | Go |
+| | `sast-flawfinder` | Flawfinder | C / C++ |
+| | `sast-brakeman` | Brakeman | Ruby on Rails |
+| | `sast-psalm` | Psalm (taint analysis) | PHP |
+| | `sast-cargo-audit` | cargo-audit + cargo-geiger | Rust |
+| | `sast-detekt` | detekt | Kotlin |
+| **SCA** | `sca-osv-scanner` | OSV-Scanner | All ecosystems |
+| | `sca-grype` | Grype | All ecosystems + images |
+| | `sca-npm-audit` | npm audit | Node.js / npm |
+| | `sca-pip-audit` | pip-audit | Python / PyPI |
+| **Secret Scanning** | `secret-scan-gitleaks` | Gitleaks | Git repos / files |
+| | `secret-scan-trufflehog` | TruffleHog | Git / filesystem / S3 |
+| **Container** | `container-scan-trivy` | Trivy | Docker / OCI images |
+| | `container-scan-hadolint` | Hadolint | Dockerfiles |
+| | `container-scan-dockle` | Dockle | Docker images (CIS) |
+| **IaC** | `iac-scan-checkov` | Checkov | Terraform, CFN, K8s, Helm |
+| | `iac-scan-tfsec` | tfsec | Terraform (HCL) |
+| | `iac-scan-kube-linter` | KubeLinter | Kubernetes / Helm |
+| **DAST** | `dast-zap` | OWASP ZAP | Web apps / APIs |
+| | `dast-nuclei` | Nuclei | Web / network / cloud |
+| **API Security** | `api-security-schemathesis` | Schemathesis | OpenAPI / GraphQL |
+| | `api-security-spectral` | Spectral | OpenAPI / AsyncAPI specs |
+| **SBOM** | `sbom-syft` | Syft | Images / filesystems |
+| **License** | `license-scan-scancode` | ScanCode Toolkit | Source code |
+| **Cloud Security** | `cloud-security-prowler` | Prowler | AWS / Azure / GCP |
+| | `cloud-security-scoutsuite` | ScoutSuite | AWS / Azure / GCP / Oracle |
+| **Mobile** | `mobile-security-mobsf` | MobSF | Android / iOS |
+| **Network** | `network-scan-nmap` | Nmap | Hosts / networks |
+| **TLS/SSL** | `tls-scan-testssl` | testssl.sh | TLS endpoints |
+| **Malware** | `malware-scan-yara` | YARA | Files / binaries |
+| **Supply Chain** | `dependency-confusion-detect` | Confused + GuardDog | npm / PyPI / Maven |
+
+**Pros:** One-command install, cross-agent compatible (Claude Code, Cursor, Copilot), discoverable via skills.sh leaderboard, 36 tools covered.
 **Cons:** Requires `npx` and internet access for install.
 
 ---
