@@ -379,6 +379,10 @@ npx skills add vchirrav/owasp-secure-coding-md@<skill-name>
 * **Rule Identity Pattern:** Each rule includes Identity, Rule, Rationale, Implementation, Verification, and Examples for consistent application.
 * **Pre-Commit Hook:** Script a check to ensure sensitive files (like `auth` middleware) are reviewed against `rules/authentication-password-mgmt.md` before merging.
 
+## Author
+
+**[Viswanath Chirravuri](https://www.linkedin.com/in/vchirrav/)**
+
 ## License
 This repository contains synthesized information from the following sources and standards:
 * OWASP Secure Coding Practices Quick Reference Guide v2.1
