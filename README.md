@@ -1,4 +1,4 @@
-# OWASP Secure Coding & Security Best Practices (Markdown)
+# OWASP Secure Coding Practices (Markdown)
 
 This repository provides a machine-readable, Markdown-optimized implementation of the **OWASP Secure Coding Practices Quick Reference Guide (v2.1)**, plus modern security domains such as **API Security**, **Cloud/Kubernetes**, **CI/CD**, **Supply Chain**, **IaC**, and **Secrets Management**.
 
@@ -6,55 +6,15 @@ It is designed specifically to be consumed by **AI Agents (e.g., Claude Code, Gi
 
 ## Repository Structure
 
-The rules are modularized into atomic Markdown files in the `rules/` directory to allow for granular context injection. The repository also includes top-level skill folders for [skills.sh](https://skills.sh) compatibility.
-
 ```
 owasp-secure-coding-md/
 ├── rules/                         # 22 security rule files (one per domain)
-├── secure-coding-audit/           # Skill: OWASP secure coding audit
-├── secure-coding-generate/        # Skill: OWASP secure code generation
-├── sast-semgrep/                  # Skill: Semgrep multi-language SAST
-├── sast-bandit/                   # Skill: Bandit Python SAST
-├── sast-eslint-security/          # Skill: ESLint JS/TS security
-├── sast-spotbugs/                 # Skill: SpotBugs Java SAST
-├── sast-gosec/                    # Skill: gosec Go SAST
-├── sast-flawfinder/               # Skill: Flawfinder C/C++ SAST
-├── sast-brakeman/                 # Skill: Brakeman Ruby SAST
-├── sast-psalm/                    # Skill: Psalm PHP taint analysis
-├── sast-cargo-audit/              # Skill: cargo-audit Rust SAST
-├── sast-detekt/                   # Skill: detekt Kotlin SAST
-├── sca-osv-scanner/               # Skill: OSV-Scanner SCA
-├── sca-grype/                     # Skill: Grype SCA
-├── sca-npm-audit/                 # Skill: npm audit SCA
-├── sca-pip-audit/                 # Skill: pip-audit SCA
-├── secret-scan-gitleaks/          # Skill: Gitleaks secret detection
-├── secret-scan-trufflehog/        # Skill: TruffleHog secret detection
-├── container-scan-trivy/          # Skill: Trivy container scanning
-├── container-scan-hadolint/       # Skill: Hadolint Dockerfile lint
-├── container-scan-dockle/         # Skill: Dockle image audit
-├── iac-scan-checkov/              # Skill: Checkov IaC scanning
-├── iac-scan-tfsec/                # Skill: tfsec Terraform scanning
-├── iac-scan-kube-linter/          # Skill: KubeLinter K8s lint
-├── dast-zap/                      # Skill: OWASP ZAP DAST
-├── dast-nuclei/                   # Skill: Nuclei vulnerability scanner
-├── api-security-schemathesis/     # Skill: Schemathesis API testing
-├── api-security-spectral/         # Skill: Spectral API spec lint
-├── sbom-syft/                     # Skill: Syft SBOM generation
-├── license-scan-scancode/         # Skill: ScanCode license scan
-├── cloud-security-prowler/        # Skill: Prowler cloud posture
-├── cloud-security-scoutsuite/     # Skill: ScoutSuite cloud audit
-├── mobile-security-mobsf/         # Skill: MobSF mobile security
-├── network-scan-nmap/             # Skill: Nmap network scanning
-├── tls-scan-testssl/              # Skill: testssl.sh TLS analysis
-├── malware-scan-yara/             # Skill: YARA malware detection
-├── dependency-confusion-detect/   # Skill: dependency confusion check
-├── .claude/skills/                # Native Claude Code skills
 ├── mcp-server/                    # MCP server (Node.js/TypeScript)
 ├── CLAUDE.md                      # Claude Code project instructions
 └── README.md
 ```
 
-### Rule Files
+## Rule Files (22 Domains)
 
 | Category | File Path | Focus Area |
 | :--- | :--- | :--- |
@@ -85,7 +45,7 @@ owasp-secure-coding-md/
 
 ## Integration Options
 
-There are **four ways** to use these rules with AI agents. Choose the option that best fits your workflow.
+There are **three ways** to use these rules with AI agents. Choose the option that best fits your workflow.
 
 ### Option 1: Clone Locally + CLAUDE.md
 
@@ -127,64 +87,9 @@ When I ask for a "Security Audit" or "Secure Code Generation":
 
 ---
 
-### Option 2: Clone Locally + Skills (Audit & Generate)
+### Option 2: MCP Server (Programmatic Access)
 
-Clone the `rules/` folder locally (same as Option 1), but instead of writing CLAUDE.md instructions, copy the **two skill files** into your project. The skills automatically detect the relevant security domain and load only the needed rule files.
-
-This repo provides two separate skills:
-- **`/secure-coding-audit`** — Audits existing code against the rules and outputs a findings table
-- **`/secure-coding-generate`** — Generates new secure code following the rules with inline Rule ID citations
-
-**Setup:**
-
-```bash
-# 1. Get the rules into your project (same as Option 1)
-git clone https://github.com/vchirrav/owasp-secure-coding-md.git
-cp -r owasp-secure-coding-md/rules ./rules
-
-# 2. Copy the skill files into your project
-mkdir -p .claude/skills/secure-coding-audit
-mkdir -p .claude/skills/secure-coding-generate
-
-cp owasp-secure-coding-md/.claude/skills/secure-coding-audit/SKILL.md \
-   .claude/skills/secure-coding-audit/SKILL.md
-
-cp owasp-secure-coding-md/.claude/skills/secure-coding-generate/SKILL.md \
-   .claude/skills/secure-coding-generate/SKILL.md
-```
-
-**Usage:**
-
-Audit existing code:
-```
-> /secure-coding-audit src/auth/login.ts
-> /secure-coding-audit src/Dockerfile
-```
-
-Generate new secure code:
-```
-> /secure-coding-generate "Node.js file upload controller"
-> /secure-coding-generate "Python JWT auth middleware"
-```
-
-**Audit skill output:**
-```
-| Rule ID | Status | Finding | Remediation |
-|---------|--------|---------|-------------|
-| [INPUT-01] | FAIL | User input not validated server-side | Add server-side validation middleware |
-| [AUTH-03] | PASS | — | — |
-```
-
-**Generate skill output:** Produces code with inline Rule ID comments (e.g., `// [INPUT-04] Reject invalid input`) followed by a rules-applied summary table.
-
-**Pros:** Automatic domain detection, no manual rule file selection, dedicated workflows for audit vs generation.
-**Cons:** Requires local `rules/` folder (same as Option 1).
-
----
-
-### Option 3: MCP Server (Programmatic Access)
-
-Run the **MCP server included in this repository** (`mcp-server/`) to expose the rules as programmable tools and resources. AI agents such as Claude Desktop, Claude Code, and other MCP-compatible clients can connect to this server to look up security rules, retrieve domain files, and generate audit checklists — without needing the `rules/` folder in every project.
+Run the **MCP server included in this repository** (`mcp-server/`) to expose the rules as programmable tools and resources. AI agents such as Claude Desktop, Claude Code, and other MCP-compatible clients can connect to this server to look up security rules, retrieve domain files, and generate audit checklists -- without needing the `rules/` folder in every project.
 
 **Build & Run:**
 
@@ -222,7 +127,7 @@ Each rule file is exposed as a resource with URI pattern `secure-coding://rules/
 
 **Client Configuration:**
 
-**Claude Desktop** — add to `claude_desktop_config.json`:
+**Claude Desktop** -- add to `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
@@ -246,7 +151,7 @@ Each rule file is exposed as a resource with URI pattern `secure-coding://rules/
 }
 ```
 
-**Claude Code** — add `.mcp.json` to your project root:
+**Claude Code** -- add `.mcp.json` to your project root:
 ```json
 {
   "mcpServers": {
@@ -279,78 +184,29 @@ Tool: audit_checklist { "domain": "dockerfile-security" }
 
 ---
 
-### Option 4: skills.sh (Cross-Agent Install)
+### Option 3: AI Agent Skills (Companion Repository)
 
-Install the skills via [skills.sh](https://skills.sh), a directory that indexes Agent Skills for tools like Claude Code, Cursor, and Copilot. This repository ships **36 skills** covering the full security toolchain.
+For ready-to-use AI agent skills (SAST, SCA, DAST, container scanning, secret detection, and more), see the companion repository:
 
-**Install all skills:**
-
-```bash
-npx skills add vchirrav/owasp-secure-coding-md
-```
-
-**Install a specific skill:**
+**[owasp-security-skills](https://github.com/vchirrav/owasp-security-skills)** -- 36 skills covering the full security toolchain.
 
 ```bash
-npx skills add vchirrav/owasp-secure-coding-md@<skill-name>
+npx skills add vchirrav/owasp-security-skills
 ```
 
-**Available Skills (36):**
-
-| Category | Skill Name | Tool | Language / Target |
-|----------|-----------|------|-------------------|
-| **Secure Coding** | `secure-coding-audit` | OWASP Rules | All (rule-based audit) |
-| | `secure-coding-generate` | OWASP Rules | All (secure code gen) |
-| **SAST** | `sast-semgrep` | Semgrep | 30+ languages |
-| | `sast-bandit` | Bandit | Python |
-| | `sast-eslint-security` | ESLint + security plugin | JavaScript / TypeScript |
-| | `sast-spotbugs` | SpotBugs + Find Security Bugs | Java |
-| | `sast-gosec` | gosec | Go |
-| | `sast-flawfinder` | Flawfinder | C / C++ |
-| | `sast-brakeman` | Brakeman | Ruby on Rails |
-| | `sast-psalm` | Psalm (taint analysis) | PHP |
-| | `sast-cargo-audit` | cargo-audit + cargo-geiger | Rust |
-| | `sast-detekt` | detekt | Kotlin |
-| **SCA** | `sca-osv-scanner` | OSV-Scanner | All ecosystems |
-| | `sca-grype` | Grype | All ecosystems + images |
-| | `sca-npm-audit` | npm audit | Node.js / npm |
-| | `sca-pip-audit` | pip-audit | Python / PyPI |
-| **Secret Scanning** | `secret-scan-gitleaks` | Gitleaks | Git repos / files |
-| | `secret-scan-trufflehog` | TruffleHog | Git / filesystem / S3 |
-| **Container** | `container-scan-trivy` | Trivy | Docker / OCI images |
-| | `container-scan-hadolint` | Hadolint | Dockerfiles |
-| | `container-scan-dockle` | Dockle | Docker images (CIS) |
-| **IaC** | `iac-scan-checkov` | Checkov | Terraform, CFN, K8s, Helm |
-| | `iac-scan-tfsec` | tfsec | Terraform (HCL) |
-| | `iac-scan-kube-linter` | KubeLinter | Kubernetes / Helm |
-| **DAST** | `dast-zap` | OWASP ZAP | Web apps / APIs |
-| | `dast-nuclei` | Nuclei | Web / network / cloud |
-| **API Security** | `api-security-schemathesis` | Schemathesis | OpenAPI / GraphQL |
-| | `api-security-spectral` | Spectral | OpenAPI / AsyncAPI specs |
-| **SBOM** | `sbom-syft` | Syft | Images / filesystems |
-| **License** | `license-scan-scancode` | ScanCode Toolkit | Source code |
-| **Cloud Security** | `cloud-security-prowler` | Prowler | AWS / Azure / GCP |
-| | `cloud-security-scoutsuite` | ScoutSuite | AWS / Azure / GCP / Oracle |
-| **Mobile** | `mobile-security-mobsf` | MobSF | Android / iOS |
-| **Network** | `network-scan-nmap` | Nmap | Hosts / networks |
-| **TLS/SSL** | `tls-scan-testssl` | testssl.sh | TLS endpoints |
-| **Malware** | `malware-scan-yara` | YARA | Files / binaries |
-| **Supply Chain** | `dependency-confusion-detect` | Confused + GuardDog | npm / PyPI / Maven |
-
-**Pros:** One-command install, cross-agent compatible (Claude Code, Cursor, Copilot), discoverable via skills.sh leaderboard, 36 tools covered.
-**Cons:** Requires `npx` and internet access for install.
+The `secure-coding-audit` and `secure-coding-generate` skills in that repo use the `rules/` folder from this repository.
 
 ---
 
 ### Quick Comparison
 
-| | Option 1: CLAUDE.md | Option 2: Skills | Option 3: MCP Server | Option 4: skills.sh |
-|---|---|---|---|---|
-| **Setup** | Clone + edit CLAUDE.md | Clone + copy 2 skill files | Build & run MCP server | `npx skills add` |
-| **Rules location** | Local `rules/` folder | Local `rules/` folder | Served by MCP server | Installed by skills CLI |
-| **Domain detection** | Manual (you specify files) | Automatic (skill detects) | Automatic (query by tool) | Automatic (skill detects) |
-| **Offline support** | Yes | Yes | Yes | Yes (after install) |
-| **Best for** | Quick start, full control | Hands-off audit & generation | Teams, multi-repo, programmatic | Cross-agent, quick install |
+| | Option 1: CLAUDE.md | Option 2: MCP Server | Option 3: Skills (separate repo) |
+|---|---|---|---|
+| **Setup** | Clone + edit CLAUDE.md | Build & run MCP server | `npx skills add` |
+| **Rules location** | Local `rules/` folder | Served by MCP server | Installed by skills CLI |
+| **Domain detection** | Manual (you specify files) | Automatic (query by tool) | Automatic (skill detects) |
+| **Offline support** | Yes | Yes | Yes (after install) |
+| **Best for** | Quick start, full control | Teams, multi-repo, programmatic | Cross-agent, quick install |
 
 ---
 
@@ -360,14 +216,10 @@ npx skills add vchirrav/owasp-secure-coding-md@<skill-name>
 > "Here is my code. Review it against all OWASP secure coding rules."
 > *(Forces loading too much context, reduces quality.)*
 
-### Do (Context Optimized — Option 1)
+### Do (Context Optimized)
 > "Review this `login.py` file. First, read `rules/authentication-password-mgmt.md` and `rules/session-management.md`. Then, list any violations referencing the Rule IDs."
 
-### Do (Skill Invocation — Option 2)
-> `/secure-coding-audit src/controllers/authController.ts`
-> `/secure-coding-generate "Express.js REST API with JWT auth"`
-
-### Do (MCP Tool — Option 3)
+### Do (MCP Tool)
 > "Use the `get_rule` tool to fetch the `api-security` domain, then audit `src/api/routes.ts` against those rules."
 
 ---

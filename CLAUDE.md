@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Documentation-only repository containing OWASP Secure Coding Practices (v2.1) and modern security guidelines (Docker, Kubernetes, CI/CD, Supply Chain) as modular Markdown files. Designed for AI agent consumption to perform token-efficient security audits and secure code generation.
 
-No build, test, or lint commands — pure Markdown reference repository (except for the `mcp-server/` which is a Node.js TypeScript project).
+No build, test, or lint commands -- pure Markdown reference repository (except for the `mcp-server/` which is a Node.js TypeScript project).
 
 ## Architecture
 
@@ -17,44 +17,40 @@ All security rules live in `rules/` as standalone Markdown files, one per securi
 3. **Numbered checklist rules**, each with 6 fields: Identity, Rule, Rationale, Implementation, Verification, Examples
 4. **Source citations** to OWASP, Docker, Kubernetes, NIST, CIS, SLSA standards
 
-Rule IDs are hierarchical (e.g., `[INPUT-01]`, `[AUTH-05]`, `[K8S-12]`) and should be cited in audit output.
+Rule IDs are hierarchical and should be cited in audit output. The 22 prefixes are:
 
-## Skills
-
-This repo ships **36 skills** in two formats:
-
-### Claude Code Skills (`.claude/skills/`)
-
-- **`/secure-coding-audit`** — Audits existing code for security vulnerabilities using the local `rules/` directory. Outputs a findings table with Pass/Fail per rule.
-- **`/secure-coding-generate`** — Generates new secure code following the local `rules/` directory. Outputs code with inline Rule ID citations.
-
-Both skills automatically detect the relevant security domain and load only the needed rule files.
-
-### skills.sh Skills (top-level folders)
-
-36 skills available in the [skills.sh](https://skills.sh) format as top-level folders, each containing a `SKILL.md` with YAML frontmatter. Categories: Secure Coding (2), SAST (10), SCA (4), Secret Scanning (2), Container Security (3), IaC Scanning (3), DAST (2), API Security (2), SBOM (1), License (1), Cloud Security (2), Mobile (1), Network (1), TLS (1), Malware (1), Supply Chain (1).
-
-Install all via:
-
-```bash
-npx skills add vchirrav/owasp-secure-coding-md
-```
-
-Install a specific skill:
-
-```bash
-npx skills add vchirrav/owasp-secure-coding-md@sast-bandit
-```
+`INPUT`, `OUT`, `AUTH`, `SESS`, `AC`, `API`, `DOCKER`, `K8S`, `CICD`, `CHAIN`, `SECRET`, `IAC`, `CLIENT`, `CRYP`, `COM`, `DB`, `FILE`, `DATA`, `ERR`, `MEM`, `GEN`, `SYS`
 
 ## MCP Server
 
-The `mcp-server/` directory contains a Node.js MCP server that exposes all 22 rule domains as tools and resources. Build and run with:
+The `mcp-server/` directory contains a Node.js TypeScript MCP server (ESM, `@modelcontextprotocol/sdk` + `zod`) that exposes all 22 rule domains as tools and resources. No tests are configured.
+
+**Build & run:**
 
 ```bash
 cd mcp-server && npm install && npm run build && npm start
 ```
 
-Tools: `list_rules`, `get_rule`, `audit_checklist`. See the README for full MCP documentation.
+**Docker (from repo root):**
+
+```bash
+docker build -t owasp-mcp-server -f mcp-server/Dockerfile .
+docker run -i owasp-mcp-server
+```
+
+**Docker Compose (dev, live rules mount):**
+
+```bash
+cd mcp-server && docker compose up --build
+```
+
+**Tools:** `list_rules`, `get_rule` (accepts rule ID like `INPUT-01` or domain like `input-validation`), `audit_checklist` (returns markdown table for a domain). **Resources:** 22 URIs at `secure-coding://rules/{domain}`.
+
+**Rules resolution:** The server searches for `rules/` in `cwd`, then `../../rules`, then `../rules` relative to the compiled JS -- relevant when running from Docker vs local dev.
+
+## Companion Repository: AI Agent Skills
+
+AI agent skills (SAST, SCA, DAST, container scanning, secret detection, etc.) live in a separate repository: [owasp-security-skills](https://github.com/vchirrav/owasp-security-skills). The `secure-coding-audit` and `secure-coding-generate` skills in that repo depend on the `rules/` folder from this repository.
 
 ## Security Auditing Persona
 
@@ -87,7 +83,7 @@ When asked for a "Security Audit" or "Secure Code Generation":
 | Server config, hardening | `system-configuration.md` |
 | General (no specific domain) | `general-coding-practices.md` |
 
-All files are in `rules/`. Do **not** load the entire folder — only what is needed.
+All files are in `rules/`. Do **not** load the entire folder -- only what is needed.
 
 ### Output Format
 
@@ -104,4 +100,4 @@ For code generation, add inline comments citing Rule IDs (e.g., `// [INPUT-04] R
 - Each rule must include all six Identity pattern fields: **Identity**, **Rule**, **Rationale**, **Implementation**, **Verification**, **Examples**
 - Use the established rule ID prefix for the file (e.g., new rules in `api-security.md` use `[API-xx]`)
 - Cite authoritative sources (OWASP, CIS, NIST, vendor docs)
-- Keep rules as concise, actionable checklist items — not prose essays
+- Keep rules as concise, actionable checklist items -- not prose essays
