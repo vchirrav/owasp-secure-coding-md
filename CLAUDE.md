@@ -50,7 +50,7 @@ cd mcp-server && docker compose up --build
 
 ## Companion Repository: AI Agent Skills
 
-AI agent skills (SAST, SCA, DAST, container scanning, secret detection, etc.) live in a separate repository: [owasp-security-skills](https://github.com/vchirrav/owasp-security-skills). The `secure-coding-audit` and `secure-coding-generate` skills in that repo depend on the `rules/` folder from this repository.
+AI agent skills (SAST, SCA, DAST, container scanning, secret detection, etc.) live in a separate repository: [product-security-ai-skills](https://github.com/chvasu/product-security-ai-skills). The `secure-coding-audit` and `secure-coding-generate` skills in that repo depend on the `rules/` folder from this repository.
 
 ## Security Auditing Persona
 

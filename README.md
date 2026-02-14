@@ -188,10 +188,10 @@ Tool: audit_checklist { "domain": "dockerfile-security" }
 
 For ready-to-use AI agent skills (SAST, SCA, DAST, container scanning, secret detection, and more), see the companion repository:
 
-**[owasp-security-skills](https://github.com/vchirrav/owasp-security-skills)** -- 36 skills covering the full security toolchain.
+**[owasp-security-skills](https://github.com/chvasu/product-security-ai-skills)** -- 36 skills covering the full security toolchain.
 
 ```bash
-npx skills add vchirrav/owasp-security-skills
+npx skills add chvasu/product-security-ai-skills
 ```
 
 The `secure-coding-audit` and `secure-coding-generate` skills in that repo use the `rules/` folder from this repository.
